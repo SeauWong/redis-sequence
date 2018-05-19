@@ -16,14 +16,12 @@ public class RedisSequenceDemoApplicationTests {
 	@Autowired
 	RedisSequence redisSequence;
 
-	private static final ExecutorService executor = Executors.newCachedThreadPool();
-
 	@Test
 	public void testRedisSequence() throws InterruptedException {
-		CyclicBarrier cyclicBarrier = new CyclicBarrier(10000);
-		CountDownLatch countDownLatch = new CountDownLatch(10000);
-		for(int i = 0 ; i < 10000; i++){
-			executor.execute(() -> {
+		CyclicBarrier cyclicBarrier = new CyclicBarrier(20000);
+		CountDownLatch countDownLatch = new CountDownLatch(20000);
+		for(int i = 0 ; i < 20000; i++){
+			new Thread(() -> {
 				try {
 					cyclicBarrier.await();
 				} catch (Exception e) {
@@ -31,7 +29,7 @@ public class RedisSequenceDemoApplicationTests {
 				}
 				System.out.println(redisSequence.generateSequence("CM"));
 				countDownLatch.countDown();
-			});
+			}).start();
 		}
 		countDownLatch.await();
 	}

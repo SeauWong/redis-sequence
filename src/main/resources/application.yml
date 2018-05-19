@@ -5,3 +5,4 @@ spring:
     password:
     pool:
       max-active: -1
+      max-idle: 10

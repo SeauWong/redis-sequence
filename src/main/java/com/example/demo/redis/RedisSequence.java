@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,6 +25,8 @@ public class RedisSequence {
 
     private static final StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
 
+    private static final Semaphore semaphore = new Semaphore(200,true);
+
     @Autowired
     StringRedisTemplate redisTemplate;
 
@@ -35,6 +38,7 @@ public class RedisSequence {
     public String generateSequence(String prefix){
         RedisConnection connection = null;
         try {
+            semaphore.acquire();
             connection = redisTemplate.getConnectionFactory().getConnection();
             String dateFormat = formatDate(connection.time());
             String nowDateKey = prefix + dateFormat;
@@ -52,6 +56,7 @@ public class RedisSequence {
             if(null != connection){
                 connection.close();
             }
+            semaphore.release(1);
         }
     }
 }
